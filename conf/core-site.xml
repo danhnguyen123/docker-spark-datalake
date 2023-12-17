@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="configuration.xsl"?>
+<!--
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License. See accompanying LICENSE file.
+-->
+
+<!-- Put site-specific property overrides in this file. -->
+
+<configuration>
+
+<property>
+    <name>fs.s3a.access.key</name>
+    <value>minioadmin</value>
+</property>
+
+<property>
+    <name>fs.s3a.secret.key</name>
+    <value>minioadmin</value>
+</property>
+
+<property>
+    <name>fs.s3a.endpoint</name>
+    <value>http://minio:9000</value>
+</property>
+
+<property>
+    <name>fs.s3a.connection.ssl.enabled</name>
+    <value>false</value>
+</property>
+
+<property>
+    <name>fs.s3a.path.style.access</name>
+    <value>true</value>
+</property>
+
+<property>
+    <name>fs.s3a.impl</name>
+    <value>org.apache.hadoop.fs.s3a.S3AFileSystem</value>
+</property>
+
+
+<property>
+  <name>fs.AbstractFileSystem.gs.impl</name>
+  <value>com.google.cloud.hadoop.fs.gcs.GoogleHadoopFS</value>
+  <description>The AbstractFileSystem for 'gs:' URIs.</description>
+</property>
+
+<property>
+  <name>fs.gs.project.id</name>
+  <value></value>
+  <description>
+    Optional. Google Cloud Project ID with access to GCS buckets.
+    Required only for list buckets and create bucket operations.
+  </description>
+</property>
+
+<property>
+  <name>google.cloud.auth.type</name>
+  <value>SERVICE_ACCOUNT_JSON_KEYFILE</value>
+  <description>
+    Authentication type to use for GCS access.
+  </description>
+</property>
+
+<property>
+  <name>google.cloud.auth.service.account.json.keyfile</name>
+  <value>/path/to/service-account.json</value>
+  <description>
+    The JSON keyfile of the service account used for GCS
+    access when google.cloud.auth.type is SERVICE_ACCOUNT_JSON_KEYFILE.
+  </description>
+</property>
+
+
+<property>
+    <name>fs.AbstractFileSystem.wasb.Impl</name>
+    <value>org.apache.hadoop.fs.azure.Wasb</value>
+ </property>
+
+ <property>
+  <name>fs.azure.account.key.REAPLACE_STORAGE_ACCOUNT.blob.core.windows.net</name>
+  <value>REAPLACE_ACCESS_KEY</value>
+  <description>
+    Replace datalakeplaygroud with storage account name
+    Replace value with access key
+  </description>
+ </property>
+
+ <property>
+    <name>fs.azure.block.blob.with.compaction.dir</name>
+    <value>/hbase/WALs,/data/myblobfiles</value>
+ </property>
+
+ <property>
+    <name>fs.azure</name>                    
+    <value>org.apache.hadoop.fs.azure.NativeAzureFileSystem</value>
+ </property>
+        
+<property>
+    <name>fs.azure.enable.append.support</name>
+    <value>true</value>
+ </property>
+
+
+</configuration>

@@ -1,0 +1,63 @@
+version: "3"
+services:
+  namenode:
+    image: apache/hadoop:3
+    hostname: namenode
+    command: ["hdfs", "namenode"]
+    ports:
+      - 9870:9870
+    env_file:
+      - ./conf/hadoop-config
+    environment:
+        ENSURE_NAMENODE_DIR: "/tmp/hadoop-root/dfs/name"
+    volumes:
+      - ./data:/tmp/data
+    networks:
+     - bigdata-network
+
+  datanode-1:
+    image: apache/hadoop:3
+    command: ["hdfs", "datanode"]
+    env_file:
+      - ./conf/hadoop-config   
+    networks:
+     - bigdata-network      
+
+  datanode-2:
+    image: apache/hadoop:3
+    command: ["hdfs", "datanode"]
+    env_file:
+      - ./conf/hadoop-config   
+    networks:
+     - bigdata-network     
+
+  datanode-3:
+    image: apache/hadoop:3
+    command: ["hdfs", "datanode"]
+    env_file:
+      - ./conf/hadoop-config   
+    networks:
+     - bigdata-network   
+
+  resourcemanager:
+    image: apache/hadoop:3
+    hostname: resourcemanager
+    command: ["yarn", "resourcemanager"]
+    ports:
+        - 8088:8088
+    env_file:
+      - ./conf/hadoop-config
+    networks:
+     - bigdata-network
+
+  nodemanager:
+    image: apache/hadoop:3
+    command: ["yarn", "nodemanager"]
+    env_file:
+      - ./conf/hadoop-config
+    networks:
+     - bigdata-network
+
+networks:
+  bigdata-network:
+    external: true

@@ -1,0 +1,133 @@
+version: '3.8'
+x-spark-common:
+  &spark-common
+  # build:
+  #   context: .
+  #   dockerfile: Dockerfile
+  image: spark-hadoop:latest
+  env_file: ./.env.local
+  extra_hosts:
+    - "host.docker.internal:host-gateway"
+  environment:
+    SPARK_RPC_AUTHENTICATION_ENABLED: no
+    SPARK_RPC_ENCRYPTION_ENABLED: no
+    SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED: no
+    SPARK_SSL_ENABLED: no
+  volumes:
+    # - ./conf/log4j.properties:/opt/spark/conf/log4j.properties
+    - ./conf/log4j2.properties:/opt/spark/conf/log4j2.properties
+    - ./conf/spark-defaults.conf:/opt/spark/conf/spark-defaults.conf
+    - ./conf/core-site.xml:/opt/hadoop/etc/hadoop/core-site.xml
+    - ./:/opt/workspace
+    # - ./app:/tmp/local/spark/app #Spark Scripts (Must be the same path in Airflow and Spark Cluster)
+    # - ./resources:/tmp/local/spark/resources #Resources folder (Must be the same path in Airflow and Spark Cluster)
+  profiles: ["spark"]
+
+
+services:
+  spark-master:
+    <<: *spark-common
+    container_name: master
+    hostname: spark-master
+    command: bash -c "/opt/spark/bin/spark-class org.apache.spark.deploy.master.Master"
+    environment:
+      SPARK_MODE: master
+    ports:
+      - 7077:7077
+      - 8080:8080
+
+  spark-worker-1:
+    <<: *spark-common
+    container_name: worker-1
+    command: bash -c "/opt/spark/bin/spark-class org.apache.spark.deploy.worker.Worker $${SPARK_MASTER_URL}"
+    environment:
+      SPARK_MODE: worker
+      SPARK_MASTER_URL: spark://spark-master:7077
+      SPARK_WORKER_MEMORY: 4G
+      SPARK_WORKER_CORES: 1
+    # ports:
+    #   - 8081:8081    
+    depends_on:
+      - spark-master
+
+  spark-worker-2:
+    <<: *spark-common
+    container_name: worker-2
+    command: bash -c "/opt/spark/bin/spark-class org.apache.spark.deploy.worker.Worker $${SPARK_MASTER_URL}"
+    environment:
+      SPARK_MODE: worker
+      SPARK_MASTER_URL: spark://spark-master:7077
+      SPARK_WORKER_MEMORY: 4G
+      SPARK_WORKER_CORES: 1
+    # ports:
+    #   - 8081:8081    
+    depends_on:
+      - spark-master
+
+  spark-history-server:
+    <<: *spark-common
+    container_name: spark-history-server
+    command: bash -c "/opt/spark/bin/spark-class org.apache.spark.deploy.history.HistoryServer"
+    ports:
+      - 18080:18080
+    depends_on:
+      - spark-master
+      # - minio
+      # - create-buckets-minio
+
+  jupyterlab:
+    <<: *spark-common
+    container_name: jupyterlab
+    command: bash -c 'jupyter lab --ip=0.0.0.0 --port=8888 --no-browser --allow-root --NotebookApp.token="$${JUPYTERLAB_TOKEN}" --NotebookApp.password="$${JUPYTERLAB_PASSWORD}"'
+    env_file: ./.env.local
+    ports:
+      # 8888: Jupyrt Web UI
+      - 8888:8888
+      # 4040: Spark Session Web UI
+      - 4040:4040
+    volumes:
+      - ./:/opt/workspace
+
+  minio:
+    image: minio/minio
+    container_name: minio
+    hostname: minio
+    env_file: ./.env.local
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - storage:/data
+    # environment:
+    #   MINIO_ROOT_USER: minioadmin
+    #   MINIO_ROOT_PASSWORD: minioadmin
+    command: server --console-address ":9001" /data
+    profiles: ["minio"]
+
+
+  create-buckets-minio:
+    image: minio/mc
+    container_name: create-buckets-minio
+    env_file: ./.env.local
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+      MINIO_BUCKET: datalake
+    depends_on:
+      - minio
+    entrypoint: >
+      /bin/sh -c '
+      /usr/bin/mc alias set myminio http://minio:9000 "$${MINIO_ROOT_USER}" "$${MINIO_ROOT_PASSWORD}";
+      /usr/bin/mc mb -p myminio/spark-events;
+      /usr/bin/mc mb -p myminio/"$${MINIO_BUCKET}";
+      exit 0;
+      '
+    profiles: ["minio"]
+
+volumes:
+  storage:
+
+networks:
+  default:
+    name: bigdata-network
+    driver: bridge

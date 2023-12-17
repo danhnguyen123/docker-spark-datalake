@@ -1,0 +1,5 @@
+hadoop fs -ls s3a://bucket/
+hadoop fs -ls gs://bucket/
+hadoop fs -ls wasbs://<container-name>@<storage-account-name>.blob.core.windows.net/
+
+hadoop fs -ls -R wasbs://finance@datalakeplaygroud.blob.core.windows.net/

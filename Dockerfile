@@ -55,7 +55,8 @@ RUN wget https://repo1.maven.org/maven2/com/azure/azure-storage-blob/12.14.1/azu
 ENV AZURE_LIB=/opt/spark/jars/hadoop-azure-3.3.5.jar:/opt/spark/jars/azure-storage-7.0.1.jar:/opt/spark/jars/azure-storage-blob-12.3.0.jar
 
 # Add classpath jar lib to Hadoop 
-RUN echo "export HADOOP_CLASSPATH=\$HADOOP_CLASSPATH:\$(hadoop classpath):$GCP_LIB:$AZURE_LIB" >> /opt/hadoop/etc/hadoop/hadoop-env.sh
+RUN echo "export HADOOP_CLASSPATH=\$HADOOP_CLASSPATH:\$(hadoop classpath):$GCP_LIB:$AZURE_LIB" >> /opt/hadoop/etc/hadoop/hadoop-env.sh \
+    && echo "export HADOOP_ROOT_LOGGER=WARN,console" >> /opt/hadoop/etc/hadoop/hadoop-env.sh
 
 # Add classpath jar lib to Spark 
 RUN mv /opt/spark/conf/spark-env.sh.template /opt/spark/conf/spark-env.sh \
@@ -90,6 +91,9 @@ EXPOSE 8888
 
 RUN mkdir -p /opt/workspace && chmod 777 -R /opt/workspace
 WORKDIR /opt/workspace
+
+COPY master-jupyter.sh /opt/workspace/master-jupyter.sh
+RUN chmod +x /opt/workspace/master-jupyter.sh
 
 # References:
 # https://github.com/fithisux/spark-standalone-with-minio/blob/main/spark-access-minio.py

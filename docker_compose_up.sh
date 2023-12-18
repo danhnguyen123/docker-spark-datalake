@@ -1,6 +1,8 @@
 #!/bin/bash
 docker build -t spark-hadoop:latest .
 
+# docker build -t spark-jupyter:latest -f jupyterlab.Dockerfile .
+
 # Reset MINIO_IP in .env.local
 sed -i "s/^MINIO_IP=.*/MINIO_IP=localhost/" .env.local
 docker-compose --profile minio up -d
@@ -32,3 +34,5 @@ else
   fi
 fi
 
+# COPY master-jupyter.sh /opt/workspace/master-jupyter.sh
+# RUN chmod +x /opt/workspace/master-jupyter.sh

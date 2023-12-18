@@ -14,8 +14,8 @@ x-spark-common:
     SPARK_LOCAL_STORAGE_ENCRYPTION_ENABLED: no
     SPARK_SSL_ENABLED: no
   volumes:
-    # - ./conf/log4j.properties:/opt/spark/conf/log4j.properties
-    - ./conf/log4j2.properties:/opt/spark/conf/log4j2.properties
+    - ./conf/log4j.properties:/opt/spark/conf/log4j.properties
+    # - ./conf/log4j2.properties:/opt/spark/conf/log4j2.properties
     - ./conf/spark-defaults.conf:/opt/spark/conf/spark-defaults.conf
     - ./conf/core-site.xml:/opt/hadoop/etc/hadoop/core-site.xml
     - ./:/opt/workspace
@@ -29,12 +29,16 @@ services:
     <<: *spark-common
     container_name: master
     hostname: spark-master
-    command: bash -c "/opt/spark/bin/spark-class org.apache.spark.deploy.master.Master"
+    # command: bash -c "/opt/spark/bin/spark-class org.apache.spark.deploy.master.Master"
+    command: bash /opt/workspace/master-jupyter.sh
     environment:
       SPARK_MODE: master
+      JUPYTERLAB_TOKEN: admin
+      JUPYTERLAB_PASSWORD: admin
     ports:
       - 7077:7077
       - 8080:8080
+      - 8888:8888
 
   spark-worker-1:
     <<: *spark-common
@@ -75,18 +79,18 @@ services:
       # - minio
       # - create-buckets-minio
 
-  jupyterlab:
-    <<: *spark-common
-    container_name: jupyterlab
-    command: bash -c 'jupyter lab --ip=0.0.0.0 --port=8888 --no-browser --allow-root --NotebookApp.token="$${JUPYTERLAB_TOKEN}" --NotebookApp.password="$${JUPYTERLAB_PASSWORD}"'
-    env_file: ./.env.local
-    ports:
-      # 8888: Jupyrt Web UI
-      - 8888:8888
-      # 4040: Spark Session Web UI
-      - 4040:4040
-    volumes:
-      - ./:/opt/workspace
+  # jupyterlab:
+  #   <<: *spark-common
+  #   container_name: jupyterlab
+  #   command: bash -c 'jupyter lab --ip=0.0.0.0 --port=8888 --no-browser --allow-root --NotebookApp.token="$${JUPYTERLAB_TOKEN}" --NotebookApp.password="$${JUPYTERLAB_PASSWORD}"'
+  #   env_file: ./.env.local
+  #   ports:
+  #     # 8888: Jupyrt Web UI
+  #     - 8888:8888
+  #     # 4040: Spark Session Web UI
+  #     - 4040:4040
+  #   volumes:
+  #     - ./:/opt/workspace
 
   minio:
     image: minio/minio

@@ -42,7 +42,7 @@ services:
 
   spark-worker:
     <<: *spark-common
-    container_name: worker
+    # container_name: worker
     command: bash -c "/opt/spark/bin/spark-class org.apache.spark.deploy.worker.Worker $${SPARK_MASTER_URL}"
     environment:
       SPARK_MODE: worker

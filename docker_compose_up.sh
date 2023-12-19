@@ -15,7 +15,8 @@ MINIO_CONTAINER_IP=$(docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPA
 sed -i "s/^MINIO_IP=.*/MINIO_IP=$MINIO_CONTAINER_IP/" .env.local
 
 # docker-compose --profile spark up -d
-docker-compose --profile spark --scale spark-worker=8 up -d
+# docker-compose --profile spark --scale spark-worker=8 up -d
+docker-compose --profile spark up --scale spark-worker=8 -d
 
 #Scale worker
 # if [ -z "$1" ]

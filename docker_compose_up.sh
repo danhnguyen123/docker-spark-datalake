@@ -14,7 +14,8 @@ MINIO_CONTAINER_IP=$(docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPA
 # Use sed to replace the IP address into .env.local file
 sed -i "s/^MINIO_IP=.*/MINIO_IP=$MINIO_CONTAINER_IP/" .env.local
 
-docker-compose --profile spark up -d
+# docker-compose --profile spark up -d
+docker-compose --profile spark --scale spark-worker=8 up -d
 
 #Scale worker
 # if [ -z "$1" ]

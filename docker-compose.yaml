@@ -40,23 +40,9 @@ services:
       - 8080:8080
       - 8888:8888
 
-  spark-worker-1:
+  spark-worker:
     <<: *spark-common
-    container_name: worker-1
-    command: bash -c "/opt/spark/bin/spark-class org.apache.spark.deploy.worker.Worker $${SPARK_MASTER_URL}"
-    environment:
-      SPARK_MODE: worker
-      SPARK_MASTER_URL: spark://spark-master:7077
-      SPARK_WORKER_MEMORY: 4G
-      SPARK_WORKER_CORES: 1
-    # ports:
-    #   - 8081:8081    
-    depends_on:
-      - spark-master
-
-  spark-worker-2:
-    <<: *spark-common
-    container_name: worker-2
+    container_name: worker
     command: bash -c "/opt/spark/bin/spark-class org.apache.spark.deploy.worker.Worker $${SPARK_MASTER_URL}"
     environment:
       SPARK_MODE: worker
